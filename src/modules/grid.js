@@ -25,21 +25,30 @@ function Grid(width, height) {
   this.width = width;
   this.height = height;
 }
-// находится ли заданный вектор внутри сетки
-// простое сравнение x,y на >= 0 и меньше width,height
-// (vector)
+/**
+ * находится ли заданный вектор внутри сетки
+ * простое сравнение x,y на >= 0 и меньше width,height
+ * @param {Object} Vector
+ * @returns {Boolean} 
+ */
 Grid.prototype.isInside = function(vector) {
   return vector.x >= 0 && vector.x <= this.width &&
          vector.y >= 0 && vector.y <= this.height;
 };
-// возвращаем this.space[] по заданным координатам вектора
-// x + (this.width * y)
-// (vector)
+/**
+ * возвращаем this.space[] по заданным координатам вектора
+ * x + (this.width * y)
+ * @param {Object} vector
+ * @returns 
+ */
 Grid.prototype.get = function(vector) {
   return this.space[vector.x + this.width * vector.y];
 };
-// задаем для this.space[] заданный value по координатам вектора
-// (vector, value)
+/**
+ * задаем для this.space[] заданный value по координатам вектора
+ * @param {Object} Vector
+ * @param value
+ */
 Grid.prototype.set = function(vector, value) {
   this.space[vector.x + this.width * vector.y] = value;
 };

@@ -1,4 +1,4 @@
-import { Vector, Grid } from "./grid.js";
+import { Vector, Grid } from './grid.js';
 
 /**
  * Создаем объект World
@@ -17,14 +17,19 @@ function World(map, legend) {
     }
   });
 }
+/**
+ * Метод .toString()
+ * возвразает строку
+ * @return {String} '#      #    #      o      ##' + '\n'
+ */
 World.prototype.toString = function() {
-  var output = "";
+  var output = '';
   for (var y = 0; y < this.grid.height; y++ ) {
     for (var x = 0; x < this.grid.width; x++ ) {
       var element = this.grid.get(new Vector(x, y));
       output += charFromElement(element);
     }
-    output += "\n";
+    output += '\n';
   }
   return output;
 };
@@ -33,10 +38,10 @@ World.prototype.toString = function() {
  * создаем новый элемент из legend
  * @param {Object} legend 
  * @param {String} ch 
- * @return {Object} element
+ * @return {Object} Wall
  */
 function elementFromChar(legend, ch) {
-  if (ch == " ")
+  if (ch == ' ')
     return null;
   var element = new legend[ch]();
   element.originChar = ch;
@@ -45,12 +50,13 @@ function elementFromChar(legend, ch) {
 /**
  * возвращает символ заданного элемента из element.originChar
  * @param {Object} element 
+ * @return {String} 'o' или '#'
  */
 function charFromElement(element) {
   if (element == null)
-    return " ";
+    return ' ';
   else
     return element.originChar;
 }
 
-export { World };
+export { World, elementFromChar, charFromElement };
