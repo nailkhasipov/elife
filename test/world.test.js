@@ -1,5 +1,5 @@
 import chai from 'chai';
-import { World, elementFromChar, charFromElement } from '../src/modules/world';
+import { World, View, elementFromChar, charFromElement } from '../src/modules/world';
 import { Vector } from '../src/modules/grid';
 import { BouncingCritter, Wall } from '../src/modules/simple_ecosystem.js';
 
@@ -31,6 +31,40 @@ describe('World Module Test', () => {
     it('should has method .toString()', () => {
       assert.typeOf(world.toString, 'Function');
       assert.equal(world.toString(), '#####\n# o #\n#####\n');
+    });
+  });
+
+  describe('View', () => {
+    it('should have world and vector properies', () => {
+      let view = new View(world, new Vector(1, 1));
+      assert.deepEqual(view.world, world);
+      assert.deepEqual(view.vector, new Vector(1, 1));
+    });
+
+    describe('#look(dir)', () => {
+      it('should return BouncingCritter', () => {
+        let view = new View(world, new Vector(1, 1));
+        assert.equal(view.look('e'), 'o');
+      });
+
+      it('should return # when dir is not inside', () => {
+        let view = new View(world, new Vector(0, 0));
+        assert.equal(view.look('n'), '#');
+      });
+    });
+
+    describe('#findAll(ch)', () => {
+      it('should found all free spaces', () => {
+        let view = new View(world, new Vector(2, 3));
+        assert.deepEqual(view.findAll(' '), ['e', 'w']);
+      });
+    });
+
+    describe('#find(ch)', () => {
+      it('should return random free space', () => {
+        let view = new View(world, new Vector(2, 3));
+        assert.typeOf(view.find(' '), 'String');
+      });
     });
   });
   

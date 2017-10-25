@@ -1,4 +1,5 @@
 import { Vector, Grid } from './grid.js';
+import { randomElement, directions } from './simple_ecosystem.js';
 
 /**
  * Создаем объект World
@@ -35,6 +36,96 @@ World.prototype.toString = function() {
 };
 
 /**
+ * create an acted array, then check all in grid
+ * and if it act and not acted yet run letAct()
+ */
+World.prototype.turn = function() {
+  var acted = [];
+  this.grid.forEach(function(critter, vector) {
+    if (critter.act && acted.indexOf(critter) == -1) {
+      acted.push(critter);
+      this.letAct(critter, vector);
+    }
+  }, this);
+};
+
+/**
+ * get critter and his vector
+ * call critter.act(new View(this, vector))
+ * and if action.type == 'move'
+ * checkDestination
+ * move critter to new destinataion
+ * @param {Object} critter
+ * @param {Object} vector
+ */
+World.prototype.letAct = function(critter, vector) {
+  var action = critter.act(new View(this, vector));
+  if (action && action.type == 'move') {
+    var dest = this.checkDestination(action, vector);
+    if (dest && this.grid.get(dest) == null) {
+      this.grid.set(vector, null);
+      this.grid.set(dest, critter);
+    }
+  }
+};
+
+/**
+ * check destination
+ * @param {Object} action
+ * @param {Object} vector
+ * @returns {Object} dest (vector)
+ */
+World.prototype.checkDestination = function(action, vector) {
+  if (directions.hasOwnProperty(action.direction)) {
+    var dest = vector.plus(directions[action.direction]);
+    if (this.grid.isInside(dest))
+      return dest;
+  }
+};
+
+/**
+ * Create view object
+ * @param {Object} world 
+ * @param {Object} vector 
+ */
+function View(world, vector) {
+  this.world = world;
+  this.vector = vector;
+}
+
+/**
+ * look for direction and return character from
+ * @param {String} dir
+ * @returns {String} '#', 'o', ' '
+ */
+View.prototype.look = function(dir) {
+  var target = this.vector.plus(directions[dir]);
+  if (this.world.grid.isInside(target))
+    return charFromElement(this.world.grid.get(target));
+  else
+    return '#';
+};
+
+/**
+ * find all directions for current character
+ * @param {String} ch
+ * @returns {Array} [ 'e', 'ne' ]
+ */
+View.prototype.findAll = function(ch) {
+  var found = [];
+  for (var dir in directions)
+    if (this.look(dir) == ch)
+      found.push(dir);
+  return found;
+};
+
+View.prototype.find = function(ch) {
+  var found = this.findAll(ch);
+  if (found.length == 0) return null;
+  return randomElement(found);
+};
+
+/**
  * создаем новый элемент из legend
  * @param {Object} legend 
  * @param {String} ch 
@@ -59,4 +150,4 @@ function charFromElement(element) {
     return element.originChar;
 }
 
-export { World, elementFromChar, charFromElement };
+export { World, View, elementFromChar, charFromElement };
