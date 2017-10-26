@@ -1,9 +1,6 @@
-import chai from 'chai';
 import { World, View, elementFromChar, charFromElement } from '../src/modules/world';
 import { Vector } from '../src/modules/grid';
 import { BouncingCritter, Wall } from '../src/modules/simple_ecosystem.js';
-
-let assert = chai.assert;
 
 let map = ['#####',
            '# o #',
@@ -13,78 +10,72 @@ let legend = {'#': Wall, 'o': BouncingCritter};
 
 let world = new World(map, legend);
 
-describe('World Module Test', () => {
-  describe('World', () => {
-    it('should create new world', () => {
-      assert.typeOf(world, 'Object');
-    });
+test('world', () => {
+  expect(world.legend).toBeDefined();
+  expect(world.legend).toEqual(legend);
+  expect(world.grid).toBeDefined();
+});
 
-    it('should has property legend', () => {
-      assert.typeOf(world.legend, 'Object');
-      assert.deepEqual(world.legend, legend);
-    });
+test('world.toString() method', () => {
+  expect(world.toString).toBeDefined();
+  expect(world.toString()).toEqual('#####\n# o #\n#####\n');
+});
 
-    it('should has property grid', () => {
-      assert.typeOf(world.grid, 'Object');
-    });
-
-    it('should has method .toString()', () => {
-      assert.typeOf(world.toString, 'Function');
-      assert.equal(world.toString(), '#####\n# o #\n#####\n');
-    });
+describe('view', () => {
+  test('view', () => {
+    let view = new View(world, new Vector(1, 1));
+    expect(view.world).toEqual(world);
+    expect(view.vector).toEqual(new Vector(1, 1));
   });
 
-  describe('View', () => {
-    it('should have world and vector properies', () => {
+  describe('view.look(dir)', () => {
+    test('should return BouncingCritter', () => {
       let view = new View(world, new Vector(1, 1));
-      assert.deepEqual(view.world, world);
-      assert.deepEqual(view.vector, new Vector(1, 1));
+      expect(view.look('e')).toEqual('o');
     });
-
-    describe('#look(dir)', () => {
-      it('should return BouncingCritter', () => {
-        let view = new View(world, new Vector(1, 1));
-        assert.equal(view.look('e'), 'o');
-      });
-
-      it('should return # when dir is not inside', () => {
-        let view = new View(world, new Vector(0, 0));
-        assert.equal(view.look('n'), '#');
-      });
-    });
-
-    describe('#findAll(ch)', () => {
-      it('should found all free spaces', () => {
-        let view = new View(world, new Vector(2, 3));
-        assert.deepEqual(view.findAll(' '), ['e', 'w']);
-      });
-    });
-
-    describe('#find(ch)', () => {
-      it('should return random free space', () => {
-        let view = new View(world, new Vector(2, 3));
-        assert.typeOf(view.find(' '), 'String');
-      });
-    });
-  });
-  
-  describe('elementFromChar function', () => {
-    it('should return element from char', () => {
-      assert.deepEqual(elementFromChar(legend, '#'), { originChar: '#' });
-    });
-
-    it('should return null if no char set', () => {
-      assert.equal(elementFromChar(legend, ' ', null));
+    
+    test('should return # when dir is not inside', () => {
+      let view = new View(world, new Vector(1, 1));
+      expect(view.look('n')).toEqual('#');
     });
   });
 
-  describe('charFromElement function', () => {
-    it('should return char from element', () => {
-      assert.equal(charFromElement(world.grid.get(new Vector(0, 0))), '#');
+  describe('view.findAll(ch)', () => {
+    test('should found all free spaces', () => {
+      let view = new View(world, new Vector(2, 3));
+      expect(view.findAll(' ')).toEqual(['e', 'w']);
     });
+  });
 
-    it('should return empty string if no element set', () => {
-      assert.equal(charFromElement(world.grid.get(new Vector(1, 1))), ' ');
-    });
+  // @TODO 
+  // describe('view.find(ch)', () => {
+  //   test('should return random free space', () => {
+  //     let view = new View(world, new Vector(2, 3));
+  //     expect(view.find(' ')).toEqual();
+  //   });
+  // });
+});
+
+describe('elementFromChar()', () => {
+  test('should return element from char', () => {
+    expect(elementFromChar(legend, '#')).toEqual({ originChar: '#' });
+  });
+
+  test('should return null if no char set', () => {
+    expect(elementFromChar(legend, ' ')).toBeNull;
   });
 });
+
+describe('charFromElement()', () => {
+  test('should return char from element', () => {
+    expect(charFromElement(world.grid.get(new Vector(0, 0)))).toEqual('#');
+  });
+
+  test('should return empty string if no element set', () => {
+    expect(charFromElement(world.grid.get(new Vector(1, 1)))).toEqual(' ');
+  });
+});
+
+
+
+
