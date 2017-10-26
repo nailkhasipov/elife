@@ -11,9 +11,10 @@
     var node = outer.appendChild(doc.createElement("div"));
     node.style.cssText = "position: relative; width: intrinsic; width: fit-content;";
     this.pre = node.appendChild(doc.createElement("pre"));
-    this.pre.appendChild(doc.createTextNode(world.toString()));
+    // this.pre.appendChild(doc.createTextNode(world.toString()));
+    this.pre.innerHTML = world.toHTML();
     this.button = node.appendChild(doc.createElement("div"));
-    this.button.style.cssText = "position: absolute; bottom: 8px; right: -4.5em; color: white; font-family: tahoma, arial; " +
+    this.button.style.cssText = "position: absolute; display: none; bottom: 8px; right: -4.5em; color: white; font-family: tahoma, arial; " +
       "background: #4ab; cursor: pointer; border-radius: 18px; font-size: 70%; width: 3.5em; text-align: center;";
     this.button.innerHTML = "stop";
     var self = this;
@@ -39,8 +40,9 @@
 
   Animated.prototype.tick = function() {
     this.world.turn();
-    this.pre.removeChild(this.pre.firstChild);
-    this.pre.appendChild(this.pre.ownerDocument.createTextNode(this.world.toString()));
+    this.pre.innerHTML = this.world.toHTML();
+    // this.pre.removeChild(this.pre.firstChild);
+    // this.pre.appendChild(this.pre.ownerDocument.createTextNode(this.world.toString()));
   };
 
   Animated.prototype.disable = function() {

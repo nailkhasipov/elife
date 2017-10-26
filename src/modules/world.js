@@ -2,26 +2,29 @@ import { Vector, Grid } from './grid.js';
 import { randomElement, directions } from './simple_ecosystem.js';
 
 /**
- * Создаем объект World
+ * Create a new World.
  * @param {Array} map 
  * @param {Object} legend 
  */
-function World(map, legend) {
+function World(map, legend, emojiLegend) {
   var grid = new Grid(map[0].length, map.length);
+  /** The Grid. */
   this.grid = grid;
+  /** The Legend. */
   this.legend = legend;
+  /** The Emoji Legend. */
+  this.emojiLegend = emojiLegend;
 
   map.forEach(function(line, y) {
     for (var x = 0; x < line.length; x++) {
       grid.set(new Vector(x, y),
-               elementFromChar(legend, line[x]));
+               elementFromChar(legend, line[x], emojiLegend));
     }
   });
 }
 /**
- * Метод .toString()
- * возвразает строку
- * @return {String} '#      #    #      o      ##' + '\n'
+ * Returns string representation of the World.
+ * @return {String} '#      #    #      o      ##' + '\n...'
  */
 World.prototype.toString = function() {
   var output = '';
@@ -34,7 +37,24 @@ World.prototype.toString = function() {
   }
   return output;
 };
-
+/**
+ * Returns HTML representation of the world with emoji.
+ */
+World.prototype.toHTML = function() {
+  var output = '';
+  for (var y = 0; y < this.grid.height; y++ ) {
+    for (var x = 0; x < this.grid.width; x++ ) {
+      var element = this.grid.get(new Vector(x, y));
+      if (element == null) {
+        output += '<span class="blank">' + emojiFromElement(element) + '</span>';
+      } else {
+        output += emojiFromElement(element);
+      }
+    }
+    output += '\n';
+  }
+  return output;
+};
 /**
  * create an acted array, then check all in grid
  * and if it act and not acted yet run letAct()
@@ -48,7 +68,6 @@ World.prototype.turn = function() {
     }
   }, this);
 };
-
 /**
  * get critter and his vector
  * call critter.act(new View(this, vector))
@@ -68,7 +87,6 @@ World.prototype.letAct = function(critter, vector) {
     }
   }
 };
-
 /**
  * check destination
  * @param {Object} action
@@ -131,11 +149,12 @@ View.prototype.find = function(ch) {
  * @param {String} ch 
  * @return {Object} Wall
  */
-function elementFromChar(legend, ch) {
+function elementFromChar(legend, ch, emojiLegend) {
   if (ch == ' ')
     return null;
   var element = new legend[ch]();
   element.originChar = ch;
+  element.emoji = emojiLegend[ch];
   return element;
 }
 /**
@@ -149,5 +168,17 @@ function charFromElement(element) {
   else
     return element.originChar;
 }
+/**
+ * Returns emoji from element
+ * @param {Object} element 
+ * @returns {String} emoji 🐵
+ */
+function emojiFromElement(element) {
+  if (element == null)
+    // @TODO remove hardcode
+    return '⬜️';
+  else
+    return element.emoji;
+}
 
-export { World, View, elementFromChar, charFromElement };
+export { World, View, elementFromChar, charFromElement, emojiFromElement };

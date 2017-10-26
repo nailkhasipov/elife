@@ -14,7 +14,8 @@ var plan = ['############################',
             '#    #                     #',
             '############################'];
 
+var emojiLegend = {'#': '🌴', 'o': '🐵'};
 var world = new World(plan, {'#': Wall,
-                             'o': BouncingCritter});
+                             'o': BouncingCritter}, emojiLegend);
 
 window.animateWorld(world);

@@ -1,4 +1,4 @@
-import { World, View, elementFromChar, charFromElement } from '../src/modules/world';
+import { World, View, elementFromChar, charFromElement, emojiFromElement } from '../src/modules/world';
 import { Vector } from '../src/modules/grid';
 import { BouncingCritter, Wall } from '../src/modules/simple_ecosystem.js';
 
@@ -6,19 +6,39 @@ let map = ['#####',
            '# o #',
            '#####'];
 
+let emojiLegend = {'#': '🌴', 'o': '🐵'};
 let legend = {'#': Wall, 'o': BouncingCritter};
 
-let world = new World(map, legend);
+let world = new World(map, legend, emojiLegend);
 
-test('world', () => {
-  expect(world.legend).toBeDefined();
-  expect(world.legend).toEqual(legend);
-  expect(world.grid).toBeDefined();
-});
+describe('world', () => {
+  test('properties', () => {
+    expect(world.legend).toEqual(legend);
+    expect(world.emojiLegend).toEqual(emojiLegend);
+    expect(world.grid).toBeDefined();
+  });
+  
+  test('world.toString() method', () => {
+    expect(world.toString).toBeDefined();
+    expect(world.toString()).toEqual('#####\n# o #\n#####\n');
+  });
 
-test('world.toString() method', () => {
-  expect(world.toString).toBeDefined();
-  expect(world.toString()).toEqual('#####\n# o #\n#####\n');
+  
+  test('world.toHTML() method', () => {
+    expect(world.toHTML()).toEqual('🌴🌴🌴🌴🌴\n🌴<span class="blank">⬜️</span>🐵<span class="blank">⬜️</span>🌴\n🌴🌴🌴🌴🌴\n');
+  });
+  
+
+  test('.checkDestination(action, vector)', () => {
+    expect(world.checkDestination({type: 'move', direction: 'w'}, new Vector(2, 1))).toEqual(new Vector(1, 1));
+  });
+
+  // @TODO
+  // test('.letAct(critter, vector)', () => {
+  //   let critter = world.grid.get(new Vector(2, 1));
+  //   console.log(critter);
+  // });
+  
 });
 
 describe('view', () => {
@@ -58,7 +78,8 @@ describe('view', () => {
 
 describe('elementFromChar()', () => {
   test('should return element from char', () => {
-    expect(elementFromChar(legend, '#')).toEqual({ originChar: '#' });
+    expect(elementFromChar(legend, '#', emojiLegend)['emoji']).toEqual('🌴');
+    expect(elementFromChar(legend, 'o', emojiLegend)['emoji']).toEqual('🐵');
   });
 
   test('should return null if no char set', () => {
@@ -75,6 +96,13 @@ describe('charFromElement()', () => {
     expect(charFromElement(world.grid.get(new Vector(1, 1)))).toEqual(' ');
   });
 });
+
+
+test('emojiFromElement()', () => {
+  expect(emojiFromElement(elementFromChar(legend, 'o', emojiLegend))).toEqual('🐵');
+  expect(emojiFromElement(elementFromChar(legend, ' ', emojiLegend))).toEqual('⬜️');
+});
+
 
 
 
