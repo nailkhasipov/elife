@@ -61,6 +61,34 @@ WallFollower.prototype.act = function(view) {
   return {type: 'move', direction: this.dir};
 };
 
+function Plant() {
+  this.energy = 3 + Math.random() * 4;
+}
+
+Plant.prototype.act = function(view) {
+  if (this.energy > 15) {
+    var space = view.find(' ');
+    if (space)
+      return {type: 'reproduce', direction: space};
+  }
+  if (this.energy < 20)
+    return {type: 'grow'};
+};
+
+function PlantEater() {
+  this.energy = 20;
+}
+PlantEater.prototype.act = function(view) {
+  var space = view.find(' ');
+  if (this.energy > 60 && space)
+    return {type: 'reproduce', direction: space};
+  var plant = view.find('*');
+  if (plant)
+    return {type: 'eat', direction: plant};
+  if (space)
+    return {type: 'move', direction: space};
+};
+
 function Wall() {}
 
-export { BouncingCritter, WallFollower, Wall, randomElement, directions, dirPlus };
+export { BouncingCritter, WallFollower, PlantEater, Wall, Plant, randomElement, directions, dirPlus };
