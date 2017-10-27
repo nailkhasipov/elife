@@ -147,10 +147,14 @@ Grid.prototype.forEach = function(f, context) {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return BouncingCritter; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return Wall; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return randomElement; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return directions; });
+/* unused harmony export BouncingCritter */
+/* unused harmony export WallFollower */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return PlantEater; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return Wall; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return Plant; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return randomElement; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return directions; });
+/* unused harmony export dirPlus */
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__grid_js__ = __webpack_require__(0);
 
 
@@ -175,6 +179,11 @@ var directions = {
 
 var directionNames = 'n ne e se s sw w nw'.split(' ');
 
+function dirPlus(dir, n) {
+  var index = directionNames.indexOf(dir);
+  return (directionNames[(index + n + 8) % 8]);
+}
+
 /**
  * create a BouncingCritter object
  */
@@ -195,6 +204,49 @@ BouncingCritter.prototype.act = function(view) {
   return {type: 'move', direction: this.direction};
 };
 
+function WallFollower() {
+  this.dir = 's';
+}
+
+WallFollower.prototype.act = function(view) {
+  var start = this.dir;
+  if (view.look(dirPlus(this.dir, -3)) != ' ')
+    start = this.dir = dirPlus(this.dir, -2);
+  while (view.look(this.dir) != ' ') {
+    this.dir = dirPlus(this.dir, 1);
+    if (this.dir == start) break;
+  }
+  return {type: 'move', direction: this.dir};
+};
+
+function Plant() {
+  this.energy = 3 + Math.random() * 4;
+}
+
+Plant.prototype.act = function(view) {
+  if (this.energy > 15) {
+    var space = view.find(' ');
+    if (space)
+      return {type: 'reproduce', direction: space};
+  }
+  if (this.energy < 20)
+    return {type: 'grow'};
+};
+
+function PlantEater() {
+  this.energy = 20;
+}
+PlantEater.prototype.act = function(view) {
+  var space = view.find(' ');
+  if (this.energy > 60 && space)
+    return {type: 'reproduce', direction: space};
+  var plant = view.find('*');
+  if (plant)
+    return {type: 'eat', direction: plant};
+  if (space)
+    return {type: 'move', direction: space};
+};
+
 function Wall() {}
 
 
@@ -210,32 +262,97 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 
-var plan = ['############################',
-            '#      #    #      o      ##',
-            '#                          #',
-            '#          #####           #',
-            '##         #   #    ##     #',
-            '###           ##     #     #',
-            '#           ###      #     #',
-            '#   ####                   #',
-            '#   ##       o             #',
-            '# o  #         o       ### #',
-            '#    #                     #',
-            '############################'];
+// var plan = ['############################',
+//             '#      #    #      o      ##',
+//             '#                          #',
+//             '#          #####           #',
+//             '##         #   #    ##     #',
+//             '###           ##     #     #',
+//             '#           ###      #     #',
+//             '#   ####                   #',
+//             '#   ##       o             #',
+//             '# o  #         o       ### #',
+//             '#    #                     #',
+//             '############################'];
 
-var emojiLegend = {'#': '🌴', 'o': '🐵'};
-var world = new __WEBPACK_IMPORTED_MODULE_0__modules_world_js__["a" /* World */](plan, {'#': __WEBPACK_IMPORTED_MODULE_1__modules_simple_ecosystem_js__["b" /* Wall */],
-                             'o': __WEBPACK_IMPORTED_MODULE_1__modules_simple_ecosystem_js__["a" /* BouncingCritter */]}, emojiLegend);
+// var emojiLegend = {'#': '🌴', 'o': '🐵'};
+// var world = new World(plan, {'#': Wall,
+//                              'o': BouncingCritter}, emojiLegend);
 
-window.animateWorld(world);
+// window.animateWorld(world);
 
+// var wallFollowMap = ['############',
+//                      '#     #    #',
+//                      '#   ~    ~ #',
+//                      '#  ##      #',
+//                      '#  ##  o####',
+//                      '#          #',
+//                      '############'];
+
+// var emojiLegend = {'#': '🏚', 'o': '👾', '~': '👻'};
+// var legend = {'#': Wall, 'o': BouncingCritter, '~': WallFollower};
+
+// var world = new World(wallFollowMap, legend, emojiLegend);
+
+// window.animateWorld(world);
+
+// var valley = new LifelikeWorld(
+//   ['############################',
+//    '#####                 ######',
+//    '##   ***                **##',
+//    '#   *##**         **  O  *##',
+//    '#    ***     O    ##**    *#',
+//    '#       O         ##***    #',
+//    '#                 ##**     #',
+//    '#   O       #*             #',
+//    '#*          #**       O    #',
+//    '#***        ##**    O    **#',
+//    '##****     ###***       *###',
+//    '############################'],
+//   {'#': Wall,
+//    'O': PlantEater,
+//    '*': Plant},
+//   {'#': '⛰',
+//    'O': '🐮',
+//    '*': '🌳'}
+// );
+
+var valley = new __WEBPACK_IMPORTED_MODULE_0__modules_world_js__["a" /* LifelikeWorld */](
+  ['##############',
+   '###*     *####',
+   '##*       **##',
+   '#   ***     *#',
+   '#  *##**     #',
+   '#   ***      #',
+   '#    O       #',
+   '#      **    #',
+   '#      ##*   #',
+   '#      ##*   #',
+   '#      ##**  #',
+   '# O          #',
+   '#     *      #',
+   '#     #* O   #',
+   '#*    #*     #',
+   '##**   #** **#',
+   '###**  ##* ###',
+   '##############'],
+  {'#': __WEBPACK_IMPORTED_MODULE_1__modules_simple_ecosystem_js__["c" /* Wall */],
+   'O': __WEBPACK_IMPORTED_MODULE_1__modules_simple_ecosystem_js__["b" /* PlantEater */],
+   '*': __WEBPACK_IMPORTED_MODULE_1__modules_simple_ecosystem_js__["a" /* Plant */]},
+  {'#': '⛰',
+   'O': '🐮',
+   '*': '🌳'}
+);
+
+window.animateWorld(valley);
 
 /***/ }),
 /* 3 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return World; });
+/* unused harmony export World */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return LifelikeWorld; });
 /* unused harmony export View */
 /* unused harmony export elementFromChar */
 /* unused harmony export charFromElement */
@@ -338,11 +455,72 @@ World.prototype.letAct = function(critter, vector) {
  * @returns {Object} dest (vector)
  */
 World.prototype.checkDestination = function(action, vector) {
-  if (__WEBPACK_IMPORTED_MODULE_1__simple_ecosystem_js__["c" /* directions */].hasOwnProperty(action.direction)) {
-    var dest = vector.plus(__WEBPACK_IMPORTED_MODULE_1__simple_ecosystem_js__["c" /* directions */][action.direction]);
+  if (__WEBPACK_IMPORTED_MODULE_1__simple_ecosystem_js__["d" /* directions */].hasOwnProperty(action.direction)) {
+    var dest = vector.plus(__WEBPACK_IMPORTED_MODULE_1__simple_ecosystem_js__["d" /* directions */][action.direction]);
     if (this.grid.isInside(dest))
       return dest;
   }
+};
+
+function LifelikeWorld(map, legend, emojiLegend) {
+  World.call(this, map, legend, emojiLegend);
+}
+
+LifelikeWorld.prototype = Object.create(World.prototype);
+
+var actionTypes = Object.create(null);
+
+LifelikeWorld.prototype.letAct = function(critter, vector) {
+  var action = critter.act(new View(this, vector));
+  var handled = action &&
+    action.type in actionTypes &&
+    actionTypes[action.type].call(this, critter, vector, action);
+
+  if (!handled) {
+    critter.energy -= 0.2;
+    if (critter.energy <= 0)
+      this.grid.set(vector, null);
+  }
+};
+
+actionTypes.move = function(critter, vector, action) {
+  var dest = this.checkDestination(action, vector);
+  if (dest == null ||
+      critter.energy <= 1 ||
+      this.grid.get(dest) != null)
+    return false;
+  critter.energy -= 1;
+  this.grid.set(vector, null);
+  this.grid.set(dest, critter);
+  return true;
+};
+
+actionTypes.eat = function(critter, vector, action) {
+  var dest = this.checkDestination(action, vector);
+  var atDest = dest != null && this.grid.get(dest);
+  if (!atDest || atDest.energy == null)
+    return false;
+  critter.energy += atDest.energy;
+  this.grid.set(dest, null);
+  return true;
+};
+
+actionTypes.grow = function(critter) {
+  critter.energy += 0.5;
+  return true;
+};
+
+actionTypes.reproduce = function(critter, vector, action) {
+  var baby = elementFromChar(this.legend,
+                             critter.originChar, this.emojiLegend);
+  var dest = this.checkDestination(action, vector);
+  if (dest == null ||
+      critter.energy <= 2 * baby.energy ||
+      this.grid.get(dest) != null)
+    return false;
+  critter.energy -= 2 * baby.energy;
+  this.grid.set(dest, baby);
+  return true;
 };
 
 /**
@@ -361,7 +539,7 @@ function View(world, vector) {
  * @returns {String} '#', 'o', ' '
  */
 View.prototype.look = function(dir) {
-  var target = this.vector.plus(__WEBPACK_IMPORTED_MODULE_1__simple_ecosystem_js__["c" /* directions */][dir]);
+  var target = this.vector.plus(__WEBPACK_IMPORTED_MODULE_1__simple_ecosystem_js__["d" /* directions */][dir]);
   if (this.world.grid.isInside(target))
     return charFromElement(this.world.grid.get(target));
   else
@@ -375,7 +553,7 @@ View.prototype.look = function(dir) {
  */
 View.prototype.findAll = function(ch) {
   var found = [];
-  for (var dir in __WEBPACK_IMPORTED_MODULE_1__simple_ecosystem_js__["c" /* directions */])
+  for (var dir in __WEBPACK_IMPORTED_MODULE_1__simple_ecosystem_js__["d" /* directions */])
     if (this.look(dir) == ch)
       found.push(dir);
   return found;
@@ -384,7 +562,7 @@ View.prototype.findAll = function(ch) {
 View.prototype.find = function(ch) {
   var found = this.findAll(ch);
   if (found.length == 0) return null;
-  return Object(__WEBPACK_IMPORTED_MODULE_1__simple_ecosystem_js__["d" /* randomElement */])(found);
+  return Object(__WEBPACK_IMPORTED_MODULE_1__simple_ecosystem_js__["e" /* randomElement */])(found);
 };
 
 /**
